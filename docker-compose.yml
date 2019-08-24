@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   app:
     build:
@@ -6,12 +6,17 @@ services:
       dockerfile: .docker/Dockerfile
     image: laravel_docker
     ports:
-      - 8080:80
+      - 8080:8080
     volumes:
-      - .:/srv/app
+      - ./app:/var/www/app
+      - ./config:/var/www/config
+      - ./public:/var/www/public
+      - ./routes:/var/www/routes
+      - ./tests:/var/www/tests
     links:
       - mysql
       - redis
+    command: "/bin/sh -c 'php artisan migrate && php artisan serve --host=0.0.0.0 --port=8080'"
     environment:
       DB_HOST: mysql
       DB_DATABASE: laravel_docker
@@ -20,10 +25,12 @@ services:
       REDIS_HOST: redis
       SESSION_DRIVER: redis
       CACHE_DRIVER: redis
+      APP_ENV: development
+      APP_DEBUG: "true"
   mysql:
     image: mysql:5.7
     ports:
-      - 13306:3306
+      - 3306:3306
     environment:
       MYSQL_DATABASE: laravel_docker
       MYSQL_USER: app
@@ -32,4 +39,4 @@ services:
   redis:
     image: redis:4.0-alpine
     ports:
-      - 16379:6379
+      - 6379:6379
